@@ -1,7 +1,7 @@
 # Creating a list of random values
+
 # importing random method
 import random
-
 # creating a list with 100 random numbers in the range 0-1000
 randomlist = random.sample(range(0, 1000), 100)
 # printing list generated in console
@@ -17,8 +17,9 @@ for i in range(len(randomlist)):
         if randomlist[i] > randomlist[j]:
             # Changing the place of current and next value if current value is bigger
             randomlist[i], randomlist[j] = randomlist[j], randomlist[i]
-
 print(randomlist)
+ 
+# calculate average for even and odd numbers
 
 # Introducing variables to store sum and amount of odd and even values
 even_count, odd_count = 0, 0
@@ -39,6 +40,5 @@ for num in randomlist:
 # Calculating the average value
 even_avg = even_sum / even_count
 odd_avg = odd_sum / odd_count
-
 print(even_avg)
 print(odd_avg)
