@@ -1,0 +1,101 @@
+# Import random method to generate random values
+import random
+# Import string method to access letters to be used as keys
+import string
+
+
+# CREATE RANDOM LIST OF DICTIONARIES
+def random_dictionary(min_dicts=2, max_dicts=10, min_keys=1, max_keys=5, min_value=0, max_value=100):
+    letter_keys = string.ascii_lowercase
+    num_dicts = random.randint(min_dicts, max_dicts)
+    dicts_list = []
+    for i in range(num_dicts):
+        num_keys = random.randint(min_keys, max_keys)
+        keys = random.sample(letter_keys, num_keys)
+        random_dict = {key: random.randint(min_value, max_value) for key in keys}
+        dicts_list.append(random_dict)
+    return dicts_list
+
+
+print(random_dictionary())
+a = random_dictionary()
+
+
+# COMBINE RANDOM LIST OF DICTIONARIES ACCORDING TO THE RULES
+def combine_dictionary(dicts_list):
+    combined_dict = {}
+    keys_to_compare = []
+    for idx, d in enumerate(dicts_list, start=1):
+        for key, value in d.items():
+            if key in combined_dict:
+                if value > combined_dict[key][0]:
+                    combined_dict[key] = (value, idx)
+                if key not in keys_to_compare:
+                    keys_to_compare.append(key)
+            else:
+                combined_dict[key] = (value, idx)
+    final_dict = {}
+    for key, (value, idx) in combined_dict.items():
+        if key in keys_to_compare:
+            final_dict[f"{key}_{idx}"] = value
+        else:
+            final_dict[key] = value
+    return final_dict
+
+
+print(combine_dictionary(a))
+text = """tHis iz your homeWork, copy these Text to variable.
+
+
+
+
+  You NEED TO normalize it fROM letter CASEs point oF View. also, create one MORE senTENCE witH LAST WoRDS of each existING SENtence and add it to the END OF this Paragraph.
+
+
+
+
+  it iZ misspeLLing here. fix“iZ” with correct “is”, but ONLY when it Iz a mistAKE."""
+
+
+# CREATE NEW SENTENCE AND ADD AFTER 'PARAGRAPH'
+def create_last_word_sentence(text):
+    sentences = text.split('.')
+    sentences = [sentence.strip() for sentence in sentences]
+    last_words = [sentence.split()[-1] for sentence in sentences if sentence]
+    new_sentence = (' '.join(last_words) + '.')
+    return new_sentence
+
+
+modified_text = text.replace('Paragraph.', f"{'Paragraph.'} {create_last_word_sentence(text)}")
+print(modified_text)
+
+# CALCULATE ALL WHITESPACES IN THE TEXT WITH NEW SENTENCE
+import re
+
+
+def calculate_spaces(text):
+    spaces_number = len(re.findall(r'\s', text))
+    return spaces_number
+
+
+print(calculate_spaces(modified_text))
+
+# REPLACE 'IZ' WITH 'IS' IN TEXT WITH NEW SENTENCE
+
+
+def fix_is(text):
+    fixed_iz = re.sub(' [iI][zZ] ', ' is ', text)
+    return fixed_iz
+
+
+print(fix_is(modified_text))
+
+# NORMALIZE THE TEXT
+
+
+def normalize_text(text):
+    sentences = re.split(r'(?<=[.!?])\s+', text)
+    normalized_sentences = [sentence[0].capitalize() + sentence[1:].lower() for sentence in sentences]
+    normalized_text = ' '.join(normalized_sentences)
+    return normalized_text
+
