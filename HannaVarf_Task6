@@ -1,0 +1,109 @@
+import datetime
+import os
+from HannaVarf_Task4 import normalize_text
+
+
+class News:
+    def combine ():
+        news_text = input("Enter the news: ")
+        news_city = input("Enter the city where it happened: ")
+        news_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        return f"News: {news_text}\nHappened in {news_city}\nAt {news_time}\n"
+
+
+class Adv:
+    def combine():
+        adv_text = input("Enter your advertisement: ")
+        adv_expiration_date = input("Ad is valid to in format 'YYYY-MM-DD': ")
+        try:
+            target_date = datetime.datetime.strptime(adv_expiration_date, "%Y-%m-%d")
+            current_date = datetime.datetime.now()
+            if target_date < current_date:
+                return "Date cannot be in the past"
+            days_difference = (target_date - current_date).days
+        except ValueError:
+            print("Incorrect Date format. Please use 'YYYY-MM-DD'.")
+        return f"Ad: {adv_text}\nValid till {adv_expiration_date}| {days_difference} days"
+
+
+class WeatherForecast:
+    def combine():
+        weather_temp = input ("Enter what is the temperature: ")
+        weather_desc = input ("Describe what is the weather like: ")
+        current_date = datetime.datetime.now().date()
+        return f"Weather forcast on {current_date}\n{weather_desc}.\nThe temperatura is {weather_temp}.\n"
+
+
+class UploadFromFile:
+    def __init__(self, default_folder=r"C:\Users\Hanna_Varfalameyeva\PycharmProjects\pythonProject"):
+        self.default_folder = default_folder
+
+    def ask_file_path(self):
+        while True:
+            user_choice = input("Укажите путь к файлу или оставьте пустым для дефолтовой папки: ")
+            if not user_choice:
+                file_path = os.path.join(self.default_folder, input("Введите имя файла: "))
+            else:
+                file_path = os.path.join(user_choice, input("Введите имя файла: "))
+
+            if not os.path.exists(file_path):
+                print(f"Файл '{file_path}' не существует. Попробуйте еще раз.")
+            else:
+                break
+
+        return file_path
+
+    def read_file_content(self, file_path):
+        file_extension = file_path.split(".")[-1].lower()
+        allowed_extensions = ["txt", "doc", "docx"]
+
+        if file_extension not in allowed_extensions:
+            print("Недопустимый формат файла. Поддерживаемые форматы: txt, doc, docx.")
+            return None
+
+        try:
+            with open(file_path, "r", encoding="utf-8") as file:
+                file_content = file.read()
+                normalized_article = normalize_text(normalize_text(file_content))
+            os.remove(file_path)  # Удаляем файл после прочтения
+            return normalized_article
+        except Exception as e:
+            print(f"Ошибка при чтении файла: {e}")
+            return None
+
+
+class FileWriter:
+    def write_text_to_file(article):
+        with open("result.txt", "a") as file:
+            file.write(article + "\n" + "\n")
+
+
+def main():
+    print("Select the type of article:")
+    print("1 for News")
+    print("2 for Ad")
+    print("3 for Weather Forcast")
+    print("4 To upload article from a file")
+
+    choice = input("Enter the number: ")
+
+    if choice == "1":
+        news = News.combine()
+        FileWriter.write_text_to_file(news)
+    elif choice == "2":
+        ad = Adv.combine()
+        FileWriter.write_text_to_file(ad)
+    elif choice == "3":
+        forcast = WeatherForecast.combine()
+        FileWriter.write_text_to_file(forcast)
+    elif choice == "4":
+        custom_article = UploadFromFile()
+        article = custom_article.read_file_content(custom_article.ask_file_path())
+        FileWriter.write_text_to_file(article)
+    elif choice not in ("1", "2", "3", "4"):
+        print("Incorrect Value.")
+
+
+if __name__ == "__main__":
+    main()
+
