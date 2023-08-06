@@ -1,0 +1,64 @@
+import datetime
+
+
+class News:
+    def combine ():
+        news_text = input("Enter the news: ")
+        news_city = input("Enter the city where it happened: ")
+        news_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        return f"News: {news_text}\nHappened in {news_city}\nAt {news_time}\n"
+
+
+class Adv:
+    def combine():
+        adv_text = input("Enter your advertisement: ")
+        adv_expiration_date = input("Ad is valid to in format 'YYYY-MM-DD': ")
+        try:
+            target_date = datetime.datetime.strptime(adv_expiration_date, "%Y-%m-%d")
+            current_date = datetime.datetime.now()
+            if target_date < current_date:
+                return "Date cannot be in the past"
+            days_difference = (target_date - current_date).days
+        except ValueError:
+            print("Incorrect Date format. Please use 'YYYY-MM-DD'.")
+        return f"Ad: {adv_text}\nValid till {adv_expiration_date}| {days_difference} days"
+
+
+class WeatherForecast:
+    def combine():
+        weather_temp = input ("Enter what is the temperature: ")
+        weather_desc = input ("Describe what is the weather like: ")
+        current_date = datetime.datetime.now().date()
+        return f"Weather forcast on {current_date}\n{weather_desc}.\nThe temperatura is {weather_temp}.\n"
+
+
+class FileWriter:
+    def write_text_to_file(text):
+        with open("result.txt", "a") as file:
+            file.write(text + "\n")
+
+
+def main():
+    print("Select the type of article:")
+    print("1 for News")
+    print("2 for Ad")
+    print("3 for Weather Forcast")
+
+    choice = input("Enter the number: ")
+
+    if choice == "1":
+        news = News.combine()
+        FileWriter.write_text_to_file(news)
+    elif choice == "2":
+        ad = Adv.combine()
+        FileWriter.write_text_to_file(ad)
+    elif choice == "3":
+        forcast = WeatherForecast.combine()
+        FileWriter.write_text_to_file(forcast)
+    elif choice not in ("1", "2", "3"):
+        print("Incorrect Value.")
+
+
+if __name__ == "__main__":
+    main()
+
