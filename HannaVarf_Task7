@@ -1,0 +1,55 @@
+import csv
+from collections import Counter
+import re
+
+
+def count_words(text):
+    words = re.findall(r'\b[^\d\W]+\b', text.lower())
+    word_count = Counter(words)
+    return word_count
+
+
+def write_to_csv(word_count, output_file):
+    with open(output_file, 'w', newline='', encoding='utf-8') as csvfile:
+        csv_writer = csv.writer(csvfile, delimiter="-")
+        for word, count in word_count.items():
+            csv_writer.writerow([word, count])
+
+
+def count_letters(text):
+    letters = [char for char in text if char.isalpha()]
+    letter_count = Counter(letters)
+    total_letters = sum(letter_count.values())
+
+    letter_data = []
+    for letter, count in letter_count.items():
+        uppercase_count = sum(1 for char in letter if char.isupper())
+        lowercase_count = count - uppercase_count
+        percentage = f"{round((count / total_letters) * 100, 2)}%"
+
+        letter_data.append([letter.capitalize(), count, uppercase_count, lowercase_count, percentage])
+
+    return letter_data
+
+
+def write_letter_counts_to_csv(letter_data, output_file2):
+    with open(output_file2, 'w', newline='', encoding='utf-8') as csvfile:
+        header = ['Letter', 'Count All', 'Count Uppercase', 'Count Lowercase', 'Percentage']
+        csv_writer = csv.writer(csvfile)
+        csv_writer.writerow(header)
+        for row in letter_data:
+            csv_writer.writerow(row)
+
+
+input_filename = 'result.txt'
+output_file2 = 'letter_count.csv'
+output_filename = 'word_count.csv'
+
+with open(input_filename, 'rb') as file:
+    document_text = file.read().decode('utf-8', errors='ignore')
+#
+word_count = count_words(document_text)
+write_to_csv(word_count, output_filename)
+
+letter_data = count_letters(document_text)
+write_letter_counts_to_csv(letter_data, output_file2)
