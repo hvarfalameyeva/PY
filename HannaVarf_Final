@@ -1,0 +1,84 @@
+import sqlite3
+from geopy.distance import geodesic
+import re
+
+
+class CityDatabase:
+    def __init__(self, db_name='city_coordinates.db'):
+        self.conn = sqlite3.connect(db_name)
+        self.cursor = self.conn.cursor()
+        self.create_table()
+
+    def create_table(self):
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS cities (
+                city TEXT PRIMARY KEY,
+                latitude REAL,
+                longitude REAL
+            )
+        ''')
+        self.conn.commit()
+
+    def get_city_coordinates(self, city_name):
+        self.cursor.execute('SELECT latitude, longitude FROM cities WHERE city = ?', (city_name,))
+        result = self.cursor.fetchone()
+        return result
+
+    def add_city_coordinates(self, city_name, latitude, longitude):
+        self.cursor.execute('INSERT INTO cities (city, latitude, longitude) VALUES (?, ?, ?)', (city_name, latitude, longitude))
+        self.conn.commit()
+
+    def close_connection(self):
+        self.conn.close()
+
+
+class CityDistanceCalculator(CityDatabase):
+    def calculate_distance(self, city1, city2):
+        coords1 = self.get_city_coordinates(city1)
+        if not coords1:
+            coords1 = self.get_coordinates(city1)
+            self.add_city_coordinates(city1, *coords1)
+        coords2 = self.get_city_coordinates(city2)
+        if not coords2:
+            coords2 = self.get_coordinates(city2)
+            self.add_city_coordinates(city2, *coords2)
+        distance = geodesic(coords1, coords2).kilometers
+        return distance
+
+    @staticmethod
+    def get_coordinates(city_name):
+        print(f"Ops, looks like I don't know the city {city_name}. Please, enter the coordinates")
+        while True:
+            try:
+                latitude = float(input(f"Enter the latitude of {city_name}: "))
+                longitude = float(input(f"Enter the longitude of {city_name}: "))
+                return latitude, longitude
+            except ValueError:
+                print("Coordinates should be a floating-point numbers. Let's try again.")
+
+
+class CityValidator:
+    def validate_city(self, city_input):
+        formatted_city=city_input.strip().title()
+        if re.match("^[a-zA-Z' -]+$", formatted_city):
+            return formatted_city
+        else:
+            print("I don't think you've entered the city. Let's try again.")
+            exit()
+
+
+if __name__ == "__main__":
+    calculator = CityDistanceCalculator()
+    validator = CityValidator()
+
+    print("I'm created to calculate the distance between 2 cities based on their coordinates.")
+    city1_input = input("Please, enter the name of the first City in English: ")
+    formatted_city1 = validator.validate_city(city1_input)
+
+    city2_input = input("Please, enter the name of the second City in English: ")
+    formatted_city2 = validator.validate_city(city2_input)
+
+    distance = calculator.calculate_distance(formatted_city1, formatted_city2)
+    print(f"The distance between {formatted_city1} and {formatted_city2} is {distance:.2f} км")
+
+    calculator.close_connection()
